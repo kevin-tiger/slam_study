@@ -32,6 +32,10 @@ ${PCL_INCLUDE_DIRS}
 add_library(${PROJECT_NAME} SHARED
 src/viewer/viewer.cc
 src/common/io_utils.cc
+src/init/static_imu_init.cc
+src/common/utm_convert.cc
+thirdparty/utm_convert/utm.cc
+thirdparty/utm_convert/tranmerc.cc
 )
 target_link_libraries(${PROJECT_NAME}
 ${OpenCV_LIBS}
