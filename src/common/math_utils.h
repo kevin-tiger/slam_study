@@ -704,4 +704,51 @@ bool PoseInterp(double query_time, const std::map<double, T>& data, const std::f
     return true;
 }
 
+/// 矢量比较
+template <int N>
+struct less_vec {
+    inline bool operator()(const Eigen::Matrix<int, N, 1>& v1, const Eigen::Matrix<int, N, 1>& v2) const;
+};
+
+/// 矢量哈希
+template <int N>
+struct hash_vec {
+    inline size_t operator()(const Eigen::Matrix<int, N, 1>& v) const;
+};
+
+// 实现2D和3D的比较
+template <>
+inline bool less_vec<2>::operator()(const Eigen::Matrix<int, 2, 1>& v1, const Eigen::Matrix<int, 2, 1>& v2) const {
+    return v1[0] < v2[0] || (v1[0] == v2[0] && v1[1] < v2[1]);
+}
+
+template <>
+inline bool less_vec<3>::operator()(const Eigen::Matrix<int, 3, 1>& v1, const Eigen::Matrix<int, 3, 1>& v2) const {
+    return v1[0] < v2[0] || (v1[0] == v2[0] && v1[1] < v2[1]) || (v1[0] == v2[0] && v1[1] == v2[1] && v1[2] < v2[2]);
+}
+
+/// @see Optimized Spatial Hashing for Collision Detection of Deformable Objects, Matthias Teschner et. al., VMV 2003
+template <>
+inline size_t hash_vec<2>::operator()(const Eigen::Matrix<int, 2, 1>& v) const {
+    return size_t(((v[0] * 73856093) ^ (v[1] * 471943)) % 10000000);
+}
+
+template <>
+inline size_t hash_vec<3>::operator()(const Eigen::Matrix<int, 3, 1>& v) const {
+    return size_t(((v[0] * 73856093) ^ (v[1] * 471943) ^ (v[2] * 83492791)) % 10000000);
+}
+
+constexpr auto less_vec2i = [](const Vector2i& v1, const Vector2i& v2) {
+    return v1[0] < v2[0] || (v1[0] == v2[0] && v1[1] < v2[1]);
+};
+
+template <typename S>
+inline Sophus::SE3d Mat4ToSE3(const Eigen::Matrix<S, 4, 4>& m) {
+    /// 对R做归一化，防止sophus里的检查不过
+    Quaterniond q(m.template block<3, 3>(0, 0).template cast<double>());
+    q.normalize();
+    return Sophus::SE3d(q, m.template block<3, 1>(0, 3).template cast<double>());
+}
+
+
 }

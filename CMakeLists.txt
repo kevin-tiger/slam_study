@@ -30,7 +30,11 @@ ${PCL_INCLUDE_DIRS}
 )
 
 add_library(${PROJECT_NAME} SHARED
-src/viewer/viewer.cc
+src/viewer/pangolin_window.cc
+src/viewer/pangolin_window_impl.cc
+src/viewer/ui_trajectory.cc
+src/viewer/ui_car.cc
+src/viewer/ui_cloud.cc
 src/common/io_utils.cc
 src/init/static_imu_init.cc
 src/common/utm_convert.cc

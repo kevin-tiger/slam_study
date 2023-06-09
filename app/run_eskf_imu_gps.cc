@@ -3,7 +3,7 @@
 #include "init/static_imu_init.h"
 #include "eskf/eskf.hpp"
 #include "common/utm_convert.h"
-#include "viewer/viewer.h"
+#include "viewer/pangolin_window.h"
 
 string txt_path = "./data/ch3/10.txt";
 double antenna_angle = 12.06;
@@ -14,7 +14,9 @@ bool with_odom = true;
 int main(int argc, char** argv)
 {
     cout << "app start" << endl;
-    shared_ptr<Viewer> viewer_ptr = make_shared<Viewer>();
+    std::shared_ptr<PangolinWindow> viewer_ptr = nullptr;
+    viewer_ptr = std::make_shared<PangolinWindow>();
+    viewer_ptr->Init();
     StaticIMUInit imu_init;  
     ESKFD eskf;
     bool imu_inited = false, gnss_inited = false;
@@ -47,9 +49,8 @@ int main(int argc, char** argv)
         /// GNSS 也接收到之后，再开始进行预测
         eskf.Predict(imu);
         auto state = eskf.GetNominalState();
-        Eigen::Isometry3d Twr(state.R_.matrix());
-        Twr.pretranslate(state.p_);
-        viewer_ptr->UpdateOdoPose(Twr);
+        viewer_ptr->UpdateNavState(state);
+        usleep(1e3);
     }
     );
     io.SetGNSSProcessFunc([&](const GNSS& gnss)
@@ -75,23 +76,18 @@ int main(int argc, char** argv)
         // 要求RTK heading有效，才能合入ESKF
         eskf.ObserveGps(gnss_convert);
         auto state = eskf.GetNominalState();
-        Eigen::Isometry3d Twr(state.R_.matrix());
-        Twr.pretranslate(state.p_);
-        viewer_ptr->UpdateOdoPose(Twr);
+        viewer_ptr->UpdateNavState(state);
     }
     );
     io.SetOdomProcessFunc([&](const Odom& odom) 
     {
         // cout << fixed << setprecision(3) << "odom_" << odom.timestamp_ << endl;
-        /// Odom 处理函数，本章Odom只给初始化使用
         imu_init.AddOdom(odom);
         if (with_odom && imu_inited && gnss_inited) 
         {
             eskf.ObserveWheelSpeed(odom);
             auto state = eskf.GetNominalState();
-            Eigen::Isometry3d Twr(state.R_.matrix());
-            Twr.pretranslate(state.p_);
-            viewer_ptr->UpdateOdoPose(Twr);
+            viewer_ptr->UpdateNavState(state);
         }
     }
     );

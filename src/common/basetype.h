@@ -10,6 +10,7 @@
 #include <list>
 #include <set>
 #include <execution>
+#include <numeric>
 #include <unordered_set>
 #include <unordered_map>
 #include <algorithm>
