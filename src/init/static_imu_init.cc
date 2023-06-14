@@ -21,6 +21,7 @@ bool StaticIMUInit::AddIMU(const IMU& imu)
     init_imu_deque_.push_back(imu);
 
     double init_time = imu.timestamp_ - init_start_time_;  // 初始化经过时间
+    // cout << init_time << " > " <<  options_.init_time_seconds_ << endl;
     if (init_time > options_.init_time_seconds_) {
         // 尝试初始化逻辑
         TryInit();
@@ -53,6 +54,7 @@ bool StaticIMUInit::AddOdom(const Odom& odom)
 
 bool StaticIMUInit::TryInit() 
 {
+    // cout << "init_imu_deque_.size() = " << init_imu_deque_.size() << endl;
     if (init_imu_deque_.size() < 10) {
         return false;
     }
@@ -82,6 +84,11 @@ bool StaticIMUInit::TryInit()
     // 估计测量噪声和零偏
     init_bg_ = mean_gyro;
     init_ba_ = mean_acce;
+    // cout << fixed << setprecision(6) << "init_bg_ = " << init_bg_.transpose() << endl;
+    // cout << fixed << setprecision(6) << "init_ba_ = " << init_ba_.transpose() << endl;
+    // cout << fixed << setprecision(6) << "gravity_ = " << gravity_.transpose() << endl;
+    // cout << fixed << setprecision(6) << "cov_gyro_ = " << cov_gyro_.transpose() << endl;
+    // cout << fixed << setprecision(6) << "cov_acce_ = " << cov_acce_.transpose() << endl;
     init_success_ = true;
     return true;
 }

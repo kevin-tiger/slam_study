@@ -20,6 +20,16 @@ message(STATUS "Eigen3_VERSION: ${Eigen3_VERSION}")
 message(STATUS "Pangolin_VERSION: ${Pangolin_VERSION}")
 message(STATUS "PCL_VERSION: ${PCL_VERSION}")
 
+find_package(catkin REQUIRED COMPONENTS
+roscpp
+rospy
+std_msgs
+sensor_msgs
+pcl_ros
+pcl_conversions
+ )
+
+
 include_directories(
 ${PROJECT_SOURCE_DIR}
 ${PROJECT_SOURCE_DIR}/src
@@ -27,6 +37,7 @@ ${EIGEN3_INCLUDE_DIRS}
 ${OpenCV_INCLUDE_DIRS}
 ${Pangolin_INCLUDE_DIRS}
 ${PCL_INCLUDE_DIRS}
+${catkin_INCLUDE_DIRS}
 )
 
 add_library(${PROJECT_NAME} SHARED
@@ -45,10 +56,14 @@ target_link_libraries(${PROJECT_NAME}
 ${OpenCV_LIBS}
 ${Pangolin_LIBRARIES}
 ${PCL_LIBRARIES}
+${catkin_LIBRARIES}
 )
 
-add_executable(run_eskf_imu_gps app/run_eskf_imu_gps.cc)
-target_link_libraries(run_eskf_imu_gps ${PROJECT_NAME})
+# add_executable(run_eskf_imu_gps_wheel app/run_eskf_imu_gps_wheel.cc)
+# target_link_libraries(run_eskf_imu_gps_wheel ${PROJECT_NAME})
+
+add_executable(run_ieskf_imu_lidar app/run_ieskf_imu_lidar.cc)
+target_link_libraries(run_ieskf_imu_lidar ${PROJECT_NAME})
 
 
 

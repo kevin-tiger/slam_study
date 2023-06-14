@@ -19,6 +19,12 @@ int main(int argc, char** argv)
     viewer_ptr->Init();
     StaticIMUInit imu_init;  
     ESKFD eskf;
+    auto state = eskf.GetNominalState();
+    // cout << fixed << setprecision(3) << "state.p_ = " << state.p_.transpose() << endl;
+    // cout << fixed << setprecision(3) << "state.v_ = " << state.v_.transpose() << endl;
+    // cout << fixed << setprecision(3) << "state.R_ = \n" << state.R_.matrix() << endl;
+    // cout << fixed << setprecision(3) << "state.bg_ = " << state.bg_.transpose() << endl;
+    // cout << fixed << setprecision(3) << "state.ba_ = " << state.ba_.transpose() << endl;
     bool imu_inited = false, gnss_inited = false;
     Vector2d antenna_pos(antenna_pox_x, antenna_pox_y);
     bool first_gnss_set = false;
@@ -40,13 +46,23 @@ int main(int argc, char** argv)
             options.acce_var_ = sqrt(imu_init.GetCovAcce()[0]);
             eskf.SetInitialConditions(options, imu_init.GetInitBg(), imu_init.GetInitBa(), imu_init.GetGravity());
             imu_inited = true;
+            cout << "imu_inited = true" << endl;
+            auto state = eskf.GetNominalState();
+            // cout << fixed << setprecision(3) << "state.p_ = " << state.p_.transpose() << endl;
+            // cout << fixed << setprecision(3) << "state.v_ = " << state.v_.transpose() << endl;
+            // cout << fixed << setprecision(3) << "state.R_ = \n" << state.R_.matrix() << endl;
+            // cout << fixed << setprecision(3) << "state.bg_ = " << state.bg_.transpose() << endl;
+            // cout << fixed << setprecision(3) << "state.ba_ = " << state.ba_.transpose() << endl;
             return;
         }
-        if (!gnss_inited) {
+        if (!gnss_inited) 
+        {
             /// 等待有效的RTK数据
+            // cout << "gnss not inited, return false" << endl;
             return;
         }
         /// GNSS 也接收到之后，再开始进行预测
+        // cout << imu.timestamp_ << ", eskf.Predict(imu)" << endl;
         eskf.Predict(imu);
         auto state = eskf.GetNominalState();
         viewer_ptr->UpdateNavState(state);
@@ -56,12 +72,15 @@ int main(int argc, char** argv)
     io.SetGNSSProcessFunc([&](const GNSS& gnss)
     {
         // cout << fixed << setprecision(3) << "gnss_" << gnss.unix_time_ << endl;
-        if (!imu_inited) {
+        if (!imu_inited) 
+        {
+            // cout << "imu not inited, return false" << endl;
             return;
         }
         GNSS gnss_convert = gnss;
         if (!ConvertGps2UTM(gnss_convert, antenna_pos, antenna_angle) || !gnss_convert.heading_valid_) 
         {
+            // cout << "gnss_convert.heading_valid_ = " << gnss_convert.heading_valid_ << ", return false." << endl;
             return;
         }
         /// 去掉原点
@@ -71,9 +90,16 @@ int main(int argc, char** argv)
             first_gnss_set = true;
             gnss_inited = true;
             cout << "gnss_inited = true" << endl;
+            auto state = eskf.GetNominalState();
+            // cout << fixed << setprecision(3) << "state.p_ = " << state.p_.transpose() << endl;
+            // cout << fixed << setprecision(3) << "state.v_ = " << state.v_.transpose() << endl;
+            // cout << fixed << setprecision(3) << "state.R_ = \n" << state.R_.matrix() << endl;
+            // cout << fixed << setprecision(3) << "state.bg_ = " << state.bg_.transpose() << endl;
+            // cout << fixed << setprecision(3) << "state.ba_ = " << state.ba_.transpose() << endl;
         }
         gnss_convert.utm_pose_.translation() -= origin;
         // 要求RTK heading有效，才能合入ESKF
+        // cout << gnss_convert.unix_time_ << ", eskf.ObserveGps(gnss_convert)" << endl;
         eskf.ObserveGps(gnss_convert);
         auto state = eskf.GetNominalState();
         viewer_ptr->UpdateNavState(state);
@@ -85,6 +111,7 @@ int main(int argc, char** argv)
         imu_init.AddOdom(odom);
         if (with_odom && imu_inited && gnss_inited) 
         {
+            // cout << odom.timestamp_ << ", eskf.ObserveWheelSpeed(odom)" << endl;
             eskf.ObserveWheelSpeed(odom);
             auto state = eskf.GetNominalState();
             viewer_ptr->UpdateNavState(state);

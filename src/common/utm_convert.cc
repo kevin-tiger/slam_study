@@ -28,13 +28,17 @@ bool ConvertGps2UTM(GNSS& gps_msg, const Vector2d& antenna_pos, const double& an
     }
     /// TWG 转到 TWB
     Sophus::SE3d TBG(Sophus::SO3d::rotZ(antenna_angle * math::kDEG2RAD), Vector3d(antenna_pos[0], antenna_pos[1], 0));
+    // cout << fixed << setprecision(3) << "TBG = \n" << TBG.matrix() << endl;
     Sophus::SE3d TGB = TBG.inverse();
     /// 若指明地图原点，则减去地图原点
     double x = utm_rtk.xy_[0] - map_origin[0];
     double y = utm_rtk.xy_[1] - map_origin[1];
     double z = utm_rtk.z_ - map_origin[2];
+    // cout << fixed << setprecision(3) << "ConvertGps2UTM, " << x << ", " << y << ", " << z << endl;
     Sophus::SE3d TWG(Sophus::SO3d::rotZ(heading), Vector3d(x, y, z));
+    // cout << fixed << setprecision(3) << "TWG = \n" << TWG.matrix() << endl;
     Sophus::SE3d TWB = TWG * TGB;
+    // cout << fixed << setprecision(3) << "TWB = TWG * TGB = \n" << TWB.matrix() << endl;
 
     gps_msg.utm_valid_ = true;
     gps_msg.utm_.xy_[0] = TWB.translation().x();

@@ -51,3 +51,26 @@ void TxtIO::Go()
         }
     }
 }
+
+RosbagIO::RosbagIO(const std::string &file_path)
+:
+bag_file_(file_path) 
+{
+
+}
+
+void RosbagIO::Go() 
+{
+    rosbag::Bag bag(bag_file_);
+    auto view = rosbag::View(bag);
+    for (const rosbag::MessageInstance &m : view) 
+    {
+        // cout << "m.getTopic() = " << m.getTopic() << endl;
+        auto iter = process_func_.find(m.getTopic());
+        if (iter != process_func_.end()) 
+        {
+            // cout << "m.getTopic() = " << m.getTopic() << endl;
+            iter->second(m);
+        }
+    }
+}

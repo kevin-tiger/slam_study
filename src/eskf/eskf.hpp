@@ -58,7 +58,20 @@ class ESKF {
     /**
      * 初始零偏取零
      */
-    ESKF(Options option = Options()) : options_(option) { BuildNoise(option); }
+    ESKF(Options option = Options()) 
+    : options_(option) 
+    { 
+        // cout << fixed << setprecision(6) << "options_.imu_dt_ = " << options_.imu_dt_ << endl;
+        // cout << fixed << setprecision(6) << "options_.gyro_var_ = " << options_.gyro_var_ << endl;
+        // cout << fixed << setprecision(6) << "options_.acce_var_ = " << options_.acce_var_ << endl;
+        // cout << fixed << setprecision(6) << "options_.bias_gyro_var_ = " << options_.bias_gyro_var_ << endl;
+        // cout << fixed << setprecision(6) << "options_.bias_acce_var_ = " << options_.bias_acce_var_ << endl;
+        // cout << fixed << setprecision(6) << "options_.odom_var_ = " << options_.odom_var_ << endl;
+        // cout << fixed << setprecision(6) << "options_.gnss_pos_noise_ = " << options_.gnss_pos_noise_ << endl;
+        // cout << fixed << setprecision(6) << "options_.gnss_height_noise_ = " << options_.gnss_height_noise_ << endl;
+        // cout << fixed << setprecision(6) << "options_.gnss_ang_noise_ = " << options_.gnss_ang_noise_ << endl;
+        BuildNoise(option); 
+    }
 
     /**
      * 设置初始条件
@@ -68,13 +81,18 @@ class ESKF {
      * @param gravity 重力
      */
     void SetInitialConditions(Options options, const VecT& init_bg, const VecT& init_ba,
-                              const VecT& gravity = VecT(0, 0, -9.8)) {
+                              const VecT& gravity = VecT(0, 0, -9.8)) 
+    {
         BuildNoise(options);
         options_ = options;
         bg_ = init_bg;
         ba_ = init_ba;
         g_ = gravity;
+        // cout << fixed << setprecision(6) << "bg_ = " << bg_.transpose() << endl;
+        // cout << fixed << setprecision(6) << "ba_ = " << ba_.transpose() << endl;
+        // cout << fixed << setprecision(6) << "g_ = " << g_.transpose() << endl;
         cov_ = Mat18T::Identity() * 1e-4;
+        // cout << fixed << setprecision(6) << "cov_ = \n" << cov_ << endl;
     }
 
     /// 使用IMU递推
@@ -120,7 +138,8 @@ class ESKF {
     Vec3d GetGravity() const { return g_; }
 
    private:
-    void BuildNoise(const Options& options) {
+    void BuildNoise(const Options& options) 
+    {
         double ev = options.acce_var_;
         double et = options.gyro_var_;
         double eg = options.bias_gyro_var_;
@@ -133,20 +152,24 @@ class ESKF {
 
         // 设置过程噪声
         Q_.diagonal() << 0, 0, 0, ev2, ev2, ev2, et2, et2, et2, eg2, eg2, eg2, ea2, ea2, ea2, 0, 0, 0;
+        // cout << fixed << setprecision(6) << "Q_ = \n" << Q_ << endl;
 
         // 设置里程计噪声
         double o2 = options_.odom_var_ * options_.odom_var_;
         odom_noise_.diagonal() << o2, o2, o2;
+        // cout << fixed << setprecision(6) << "odom_noise_ = \n" << odom_noise_ << endl;
 
         // 设置GNSS状态
         double gp2 = options.gnss_pos_noise_ * options.gnss_pos_noise_;
         double gh2 = options.gnss_height_noise_ * options.gnss_height_noise_;
         double ga2 = options.gnss_ang_noise_ * options.gnss_ang_noise_;
         gnss_noise_.diagonal() << gp2, gp2, gh2, ga2, ga2, ga2;
+        // cout << fixed << setprecision(6) << "gnss_noise_ = \n" << gnss_noise_ << endl;
     }
 
     /// 更新名义状态变量，重置error state
-    void UpdateAndReset() {
+    void UpdateAndReset() 
+    {
         p_ += dx_.template block<3, 1>(0, 0);
         v_ += dx_.template block<3, 1>(3, 0);
         R_ = R_ * SO3::exp(dx_.template block<3, 1>(6, 0));
@@ -158,7 +181,7 @@ class ESKF {
         if (options_.update_bias_acce_) {
             ba_ += dx_.template block<3, 1>(12, 0);
         }
-
+        // cout << fixed << setprecision(6) << "dx_.template block<3, 1>(15, 0) = " << dx_.template block<3, 1>(15, 0) << endl;
         g_ += dx_.template block<3, 1>(15, 0);
 
         ProjectCov();
@@ -205,11 +228,12 @@ using ESKFD = ESKF<double>;
 using ESKFF = ESKF<float>;
 
 template <typename S>
-bool ESKF<S>::Predict(const IMU& imu) {
+bool ESKF<S>::Predict(const IMU& imu) 
+{
     assert(imu.timestamp_ >= current_time_);
-
     double dt = imu.timestamp_ - current_time_;
-    if (dt > (5 * options_.imu_dt_) || dt < 0) {
+    if (dt > (5 * options_.imu_dt_) || dt < 0) 
+    {
         // 时间间隔不对，可能是第一个IMU数据，没有历史信息
         cout << "skip this imu because dt_ = " << dt << endl;
         current_time_ = imu.timestamp_;
@@ -217,6 +241,9 @@ bool ESKF<S>::Predict(const IMU& imu) {
     }
 
     // nominal state 递推
+    // cout << fixed << setprecision(3) << "g_ = " << g_.transpose() << endl;
+    // cout << fixed << setprecision(3) << "p_ = " << p_.transpose() << endl;
+    // cout << fixed << setprecision(3) << "R_ = \n" << R_.matrix() << endl;
     VecT new_p = p_ + v_ * dt + 0.5 * (R_ * (imu.acce_ - ba_)) * dt * dt + 0.5 * g_ * dt * dt;
     VecT new_v = v_ + R_ * (imu.acce_ - ba_) * dt + g_ * dt;
     SO3 new_R = R_ * SO3::exp((imu.gyro_ - bg_) * dt);
@@ -239,6 +266,7 @@ bool ESKF<S>::Predict(const IMU& imu) {
 
     // mean and cov prediction
     dx_ = F * dx_;  // 这行其实没必要算，dx_在重置之后应该为零，因此这步可以跳过，但F需要参与Cov部分计算，所以保留
+    // cout << fixed << setprecision(6) << "cov_ = \n" << cov_ << endl;
     cov_ = F * cov_.eval() * F.transpose() + Q_;
     current_time_ = imu.timestamp_;
     return true;
@@ -274,7 +302,8 @@ bool ESKF<S>::ObserveWheelSpeed(const Odom& odom) {
 }
 
 template <typename S>
-bool ESKF<S>::ObserveGps(const GNSS& gnss) {
+bool ESKF<S>::ObserveGps(const GNSS& gnss) 
+{
     /// GNSS 观测的修正
     assert(gnss.unix_time_ >= current_time_);
 
@@ -283,10 +312,13 @@ bool ESKF<S>::ObserveGps(const GNSS& gnss) {
         p_ = gnss.utm_pose_.translation();
         first_gnss_ = false;
         current_time_ = gnss.unix_time_;
+        // cout << fixed << setprecision(3) << current_time_ << ", first_gnss_, p_ = " << p_.transpose() << endl;
+        // cout << fixed << setprecision(3) << current_time_ << ", first_gnss_, R_ = \n" << R_.matrix() << endl;
         return true;
     }
 
     assert(gnss.heading_valid_);
+    // cout << "ObserveSE3..." << endl;
     ObserveSE3(gnss.utm_pose_, options_.gnss_pos_noise_, options_.gnss_ang_noise_);
     current_time_ = gnss.unix_time_;
 
