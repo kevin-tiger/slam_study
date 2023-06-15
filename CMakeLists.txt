@@ -54,7 +54,6 @@ thirdparty/utm_convert/utm.cc
 thirdparty/utm_convert/tranmerc.cc
 src/ieskf/lio_ieskf.cc
 src/sync/measure_sync.cc
-src/sync/cloud_convert.cc
 src/common/point_cloud_utils.cc
 src/ndt/ndt_inc.cc
 src/inc_ndt_lo/incremental_ndt_lo.cc
@@ -67,11 +66,11 @@ ${catkin_LIBRARIES}
 yaml-cpp
 )
 
-# add_executable(run_eskf_imu_gps_wheel app/run_eskf_imu_gps_wheel.cc)
-# target_link_libraries(run_eskf_imu_gps_wheel ${PROJECT_NAME})
+add_executable(run_eskf_imu_gps_wheel app/run_eskf_imu_gps_wheel.cc)
+target_link_libraries(run_eskf_imu_gps_wheel ${PROJECT_NAME})
 
-# add_executable(run_ieskf_imu_lidar app/run_ieskf_imu_lidar.cc)
-# target_link_libraries(run_ieskf_imu_lidar ${PROJECT_NAME})
+add_executable(run_ieskf_imu_lidar app/run_ieskf_imu_lidar.cc)
+target_link_libraries(run_ieskf_imu_lidar ${PROJECT_NAME})
 
 add_executable(run_inc_ndt_lidar app/run_inc_ndt_lidar.cc)
 target_link_libraries(run_inc_ndt_lidar ${PROJECT_NAME})

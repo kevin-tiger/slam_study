@@ -15,8 +15,10 @@ int main(int argc, char** argv)
     options.ndt3d_options_.nearby_type_ = IncNdt3d::NearbyType::NEARBY6; 
     IncrementalNDTLO ndt_lo(options);
     RosbagIO rosbag_io(bag_path);
+    cout << "VoxelCloud, voxel_size = 0.1m" << endl;
     rosbag_io.AddAutoPointCloudHandle([&ndt_lo, &ui_](sensor_msgs::PointCloud2::Ptr msg) -> bool 
     {
+        cout << fixed << setprecision(3) << "cloud_" << msg->header.stamp.toSec() << endl;
         Sophus::SE3d pose;
         CloudPtr cloud = VoxelCloud(PointCloud2ToCloudPtr(msg));
         ndt_lo.AddCloud(cloud, pose);

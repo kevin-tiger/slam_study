@@ -1,7 +1,6 @@
 #pragma once
 #include "common/basetype.h"
 #include "sensor/imu.h"
-#include "sync/cloud_convert.h"
 
 /// IMU 数据与雷达同步
 struct MeasureGroup 
@@ -22,8 +21,7 @@ public:
     using Callback = std::function<void(const MeasureGroup &)>;
     MessageSync(Callback cb) 
     : 
-    callback_(cb),
-    conv_(new CloudConvert) 
+    callback_(cb)
     {
 
     }
@@ -62,7 +60,6 @@ private:
     bool Sync();
 private:
     Callback callback_;                             // 同步数据后的回调函数
-    std::shared_ptr<CloudConvert> conv_ = nullptr;  // 点云转换
     std::deque<CloudPtr> lidar_buffer_;         // 雷达数据缓冲
     std::deque<IMUPtr> imu_buffer_;                 // imu数据缓冲
     double last_timestamp_imu_ = -1.0;              // 最近imu时间

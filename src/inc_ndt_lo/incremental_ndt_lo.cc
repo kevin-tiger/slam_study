@@ -6,6 +6,7 @@ void IncrementalNDTLO::AddCloud(CloudPtr scan, Sophus::SE3d& pose, bool use_gues
     {
         // 第一个帧，直接加入local map
         pose = Sophus::SE3d();
+        cout << fixed << setprecision(3) << "first_frame, pose = \n" << pose.matrix() << endl;
         last_kf_pose_ = pose;
         ndt_.AddCloud(scan);
         first_frame_ = false;
@@ -44,10 +45,6 @@ void IncrementalNDTLO::AddCloud(CloudPtr scan, Sophus::SE3d& pose, bool use_gues
         // 放入ndt内部的local map
         ndt_.AddCloud(scan_world);
     }
-    // if (viewer_ != nullptr) 
-    // {
-    //     viewer_->SetPoseAndCloud(pose, scan_world);
-    // }
     cnt_frame_++;
 }
 
@@ -59,12 +56,4 @@ bool IncrementalNDTLO::IsKeyframe(const Sophus::SE3d& current_pose)
     Sophus::SE3d delta = last_kf_pose_.inverse() * current_pose;
     return delta.translation().norm() > options_.kf_distance_ ||
            delta.so3().log().norm() > options_.kf_angle_deg_ * math::kDEG2RAD;
-}
-
-void IncrementalNDTLO::SaveMap(const std::string& map_path) 
-{
-    // if (viewer_) 
-    // {
-    //     viewer_->SaveMap(map_path);
-    // }
 }

@@ -7,6 +7,7 @@ void IncNdt3d::AddCloud(CloudPtr cloud_world)
     {
         auto pt = ToVec3d(p);
         auto key = (pt * options_.inv_voxel_size_).cast<int>();
+        // cout << fixed << setprecision(3) << "pt = " << pt.transpose() << ", key = " << key.transpose() << endl;
         auto iter = grids_.find(key);
         if (iter == grids_.end()) 
         {
@@ -34,6 +35,7 @@ void IncNdt3d::AddCloud(CloudPtr cloud_world)
     std::for_each( active_voxels.begin(), active_voxels.end(),
     [this](const auto& key) 
     {
+        // cout << fixed << setprecision(3) << key.transpose() << " --> " << grids_[key]->second.pts_.size() << endl;
         UpdateVoxel(grids_[key]->second); 
     });
     flag_first_scan_ = false;
@@ -66,12 +68,10 @@ void IncNdt3d::UpdateVoxel(VoxelData& v)
         v.pts_.clear();
         return;
     }
-
     if (v.ndt_estimated_ && v.num_pts_ > options_.max_pts_in_voxel_) 
     {
         return;
     }
-
     if (!v.ndt_estimated_ && v.pts_.size() > options_.min_pts_in_voxel_) 
     {
         // 新增的voxel

@@ -32,10 +32,7 @@ public:
      */
     void AddCloud(CloudPtr scan, Sophus::SE3d& pose, bool use_guess = false);
 
-    /// 存储地图(viewer里）
-    void SaveMap(const std::string& map_path);
-
-   private:
+private:
     /// 判定是否为关键帧
     bool IsKeyframe(const Sophus::SE3d& current_pose);
 
