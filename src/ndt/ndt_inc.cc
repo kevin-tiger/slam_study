@@ -107,7 +107,7 @@ void IncNdt3d::UpdateVoxel(VoxelData& v)
 
 bool IncNdt3d::AlignNdt(Sophus::SE3d& init_pose)
 {
-    cout << "aligning with inc ndt, pts: " << source_->size() << ", grids: " << grids_.size() << endl;
+    // cout << "aligning with inc ndt, pts: " << source_->size() << ", grids: " << grids_.size() << endl;
     assert(grids_.empty() == false);
     Sophus::SE3d pose = init_pose;
     // 对点的索引，预先生成
@@ -196,7 +196,7 @@ bool IncNdt3d::AlignNdt(Sophus::SE3d& init_pose)
         pose.translation() += dx.tail<3>();
         if (dx.norm() < options_.eps_) 
         {
-            cout << "converged, dx = " << dx.transpose() << endl;
+            // cout << "converged, dx = " << dx.transpose() << endl;
             break;
         }
     }
