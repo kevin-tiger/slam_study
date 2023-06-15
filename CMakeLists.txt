@@ -14,6 +14,7 @@ find_package(Eigen3 REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(Pangolin REQUIRED)
 find_package(PCL REQUIRED)
+find_package(yaml-cpp REQUIRED)
 
 message(STATUS "OpenCV_VERSION: ${OpenCV_VERSION}")
 message(STATUS "Eigen3_VERSION: ${Eigen3_VERSION}")
@@ -29,7 +30,6 @@ pcl_ros
 pcl_conversions
  )
 
-
 include_directories(
 ${PROJECT_SOURCE_DIR}
 ${PROJECT_SOURCE_DIR}/src
@@ -38,6 +38,7 @@ ${OpenCV_INCLUDE_DIRS}
 ${Pangolin_INCLUDE_DIRS}
 ${PCL_INCLUDE_DIRS}
 ${catkin_INCLUDE_DIRS}
+${yaml-cpp_INCLUDE_DIRS}
 )
 
 add_library(${PROJECT_NAME} SHARED
@@ -51,12 +52,18 @@ src/init/static_imu_init.cc
 src/common/utm_convert.cc
 thirdparty/utm_convert/utm.cc
 thirdparty/utm_convert/tranmerc.cc
+src/ieskf/lio_ieskf.cc
+src/sync/measure_sync.cc
+src/sync/cloud_convert.cc
+src/common/point_cloud_utils.cc
+src/ndt/ndt_inc.cc
 )
 target_link_libraries(${PROJECT_NAME}
 ${OpenCV_LIBS}
 ${Pangolin_LIBRARIES}
 ${PCL_LIBRARIES}
 ${catkin_LIBRARIES}
+yaml-cpp
 )
 
 # add_executable(run_eskf_imu_gps_wheel app/run_eskf_imu_gps_wheel.cc)

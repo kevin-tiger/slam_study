@@ -1,25 +1,29 @@
 #include "common/basetype.h"
 #include "common/io_utils.h"
+#include "ieskf/ieskf.hpp"
+#include "ieskf/lio_ieskf.h"
 
 
 string bag_path = "/workspace_18_04/slam_in_autonomous_driving/dataset/sad/ulhk/test3.bag";
-
+string config_file = "./config/velodyne_ulhk.yaml";
 
 int main(int argc, char** argv)
 {
     cout << "app start" << endl;
+    LioIEKF lio;
+    lio.Init(config_file);
     RosbagIO rosbag_io(bag_path);
     rosbag_io.AddAutoPointCloudHandle([&](sensor_msgs::PointCloud2::Ptr cloud) -> bool 
     {
-        cout << fixed << setprecision(3) << "cloud_" << cloud->header.stamp.toSec() << endl;
-        // sad::common::Timer::Evaluate([&]() { lio.PCLCallBack(cloud); }, "IEKF lio");
+        // cout << fixed << setprecision(3) << "cloud_" << cloud->header.stamp.toSec() << endl;
+        lio.PCLCallBack(cloud);
         return true;
     }
     );
     rosbag_io.AddImuHandle([&](IMUPtr imu) 
     {
-        cout << fixed << setprecision(3) << "imu_" << imu->timestamp_ << endl;
-        // lio.IMUCallBack(imu);
+        // cout << fixed << setprecision(3) << "imu_" << imu->timestamp_ << endl;
+        lio.IMUCallBack(imu);
         return true;
     }
     );
