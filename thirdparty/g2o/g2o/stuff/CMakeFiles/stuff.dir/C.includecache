@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/workspace_18_04/slam_study/thirdparty/g2o/g2o/stuff/os_specific.c
+os_specific.h
+/workspace_18_04/slam_study/thirdparty/g2o/g2o/stuff/os_specific.h
+
+/workspace_18_04/slam_study/thirdparty/g2o/g2o/stuff/os_specific.h
+stdio.h
+-
+stdlib.h
+-
+stdarg.h
+-
+sys/time.h
+-
+sys/time.h
+-
+

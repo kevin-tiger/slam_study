@@ -15,6 +15,15 @@ find_package(OpenCV REQUIRED)
 find_package(Pangolin REQUIRED)
 find_package(PCL REQUIRED)
 find_package(yaml-cpp REQUIRED)
+# csparse
+find_package(CSparse REQUIRED)
+include_directories(${CSPARSE_INCLUDE_DIR})
+
+# cholmod
+find_package(Cholmod REQUIRED)
+include_directories(${CHOLMOD_INCLUDE_DIRS})
+
+include(cmake/g2o.cmake)
 
 message(STATUS "OpenCV_VERSION: ${OpenCV_VERSION}")
 message(STATUS "Eigen3_VERSION: ${Eigen3_VERSION}")
@@ -57,6 +66,8 @@ src/sync/measure_sync.cc
 src/common/point_cloud_utils.cc
 src/ndt/ndt_inc.cc
 src/inc_ndt_lo/incremental_ndt_lo.cc
+src/eskf/lio_eskf.cc
+src/g2o_opti/g2o_types.cc
 )
 target_link_libraries(${PROJECT_NAME}
 ${OpenCV_LIBS}
@@ -64,16 +75,23 @@ ${Pangolin_LIBRARIES}
 ${PCL_LIBRARIES}
 ${catkin_LIBRARIES}
 yaml-cpp
+${g2o_libs}
 )
 
-add_executable(run_eskf_imu_gps_wheel app/run_eskf_imu_gps_wheel.cc)
-target_link_libraries(run_eskf_imu_gps_wheel ${PROJECT_NAME})
+# add_executable(run_eskf_imu_gps_wheel app/run_eskf_imu_gps_wheel.cc)
+# target_link_libraries(run_eskf_imu_gps_wheel ${PROJECT_NAME})
 
-add_executable(run_ieskf_imu_lidar app/run_ieskf_imu_lidar.cc)
-target_link_libraries(run_ieskf_imu_lidar ${PROJECT_NAME})
+add_executable(run_g2o_imu_gps_wheel app/run_g2o_imu_gps_wheel.cc)
+target_link_libraries(run_g2o_imu_gps_wheel ${PROJECT_NAME})
 
-add_executable(run_inc_ndt_lidar app/run_inc_ndt_lidar.cc)
-target_link_libraries(run_inc_ndt_lidar ${PROJECT_NAME})
+# add_executable(run_eskf_imu_lidar app/run_eskf_imu_lidar.cc)
+# target_link_libraries(run_eskf_imu_lidar ${PROJECT_NAME})
+
+# add_executable(run_ieskf_imu_lidar app/run_ieskf_imu_lidar.cc)
+# target_link_libraries(run_ieskf_imu_lidar ${PROJECT_NAME})
+
+# add_executable(run_inc_ndt_lidar app/run_inc_ndt_lidar.cc)
+# target_link_libraries(run_inc_ndt_lidar ${PROJECT_NAME})
 
 
 

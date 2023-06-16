@@ -1,0 +1,1 @@
+/usr/bin/c++ -fPIC   -Wall -W -O3 -DNDEBUG -O3  -shared -Wl,-soname,libg2o_solver_csparse.so -o ../../../lib/libg2o_solver_csparse.so CMakeFiles/solver_csparse.dir/solver_csparse.cpp.o -Wl,-rpath,/workspace_18_04/slam_study/thirdparty/g2o/lib: ../../../lib/libg2o_csparse_extension.so ../../../lib/libg2o_core.so -lcxsparse ../../../lib/libg2o_stuff.so -lrt 

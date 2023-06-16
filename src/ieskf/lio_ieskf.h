@@ -34,7 +34,6 @@ private:
     /// 尝试让IMU初始化
     void TryInitIMU();
     /// 利用IMU预测状态信息
-    /// 这段时间的预测数据会放入imu_states_里
     void Predict();
     /// 对measures_中的点云去畸变
     void Undistort();
@@ -44,25 +43,20 @@ private:
     /// modules
     std::shared_ptr<MessageSync> sync_ = nullptr;
     StaticIMUInit imu_init_;
-
     /// point clouds data
     CloudPtr scan_undistort_{new PointCloudType()};  // scan after undistortion
     CloudPtr current_scan_ = nullptr;
-
     /// NDT数据
     IncNdt3d ndt_;
     Sophus::SE3d last_pose_;
-
     // flags
     bool imu_need_init_ = true;
     bool flg_first_scan_ = true;
     int frame_num_ = 0;
     ///////////////////////// EKF inputs and output ///////////////////////////////////////////////////////
     MeasureGroup measures_;  // sync IMU and lidar scan
-    std::vector<NavStated> imu_states_;
     IESKFD ieskf_;  // IESKF
     Sophus::SE3d TIL_;       // Lidar与IMU之间外参
-
     Options options_;
     std::shared_ptr<PangolinWindow> ui_ = nullptr;
 };

@@ -42,6 +42,20 @@ void LioIEKF::ProcessMeasurements(const MeasureGroup &meas)
     Align();
 }
 
+void LioIEKF::Predict() 
+{
+    /// 对IMU状态进行预测
+    for (auto &imu : measures_.imu_) 
+    {
+        ieskf_.Predict(*imu);
+    }
+}
+
+void LioIEKF::Undistort()
+{
+    scan_undistort_ = measures_.lidar_;
+}
+
 void LioIEKF::Align()
 {
     CloudPtr scan_undistort_trans(new PointCloudType);
@@ -62,7 +76,7 @@ void LioIEKF::Align()
         return;
     }
     // 后续的scan，使用NDT配合pose进行更新
-    cout << "=== frame " << frame_num_ << endl;
+    // cout << "=== frame " << frame_num_ << endl;
     ndt_.SetSource(current_scan_filter);
     ieskf_.UpdateUsingCustomObserve([this](const Sophus::SE3d &input_pose, Matrix<double, 18, 18> &HTVH, Matrix<double, 18, 1> &HTVr) 
     {
@@ -86,53 +100,7 @@ void LioIEKF::Align()
         ui_->UpdateScan(current_scan_, current_nav_state.GetSE3());  // 转成Lidar Pose传给UI
         ui_->UpdateNavState(current_nav_state);
     }
-
     frame_num_++;
-}
-
-void LioIEKF::Undistort()
-{
-    auto cloud = measures_.lidar_;
-    auto imu_state = ieskf_.GetNominalState();  // 最后时刻的状态
-    Sophus::SE3d T_end = Sophus::SE3d(imu_state.R_, imu_state.p_);
-    if (options_.save_motion_undistortion_pcd_) 
-    {
-        // SaveCloudToFile("./data/ch7/before_undist.pcd", *cloud);
-    }
-    /// 将所有点转到最后时刻状态上
-    // std::for_each(std::execution::par_unseq, cloud->points.begin(), cloud->points.end(), [&](auto &pt) {
-    //     SE3 Ti = T_end;
-    //     NavStated match;
-
-    //     // 根据pt.time查找时间，pt.time是该点打到的时间与雷达开始时间之差，单位为毫秒
-    //     math::PoseInterp<NavStated>(
-    //         measures_.lidar_begin_time_ + pt.time * 1e-3, imu_states_, [](const NavStated &s) { return s.timestamp_; },
-    //         [](const NavStated &s) { return s.GetSE3(); }, Ti, match);
-
-    //     Vec3d pi = ToVec3d(pt);
-    //     Vec3d p_compensate = TIL_.inverse() * T_end.inverse() * Ti * TIL_ * pi;
-
-    //     pt.x = p_compensate(0);
-    //     pt.y = p_compensate(1);
-    //     pt.z = p_compensate(2);
-    // });
-    scan_undistort_ = cloud;
-    if (options_.save_motion_undistortion_pcd_) 
-    {
-        // SaveCloudToFile("output/after_undist_" + to_string(frame_num_) + ".pcd", *cloud);
-    }
-}
-
-void LioIEKF::Predict() 
-{
-    imu_states_.clear();
-    imu_states_.emplace_back(ieskf_.GetNominalState());
-    /// 对IMU状态进行预测
-    for (auto &imu : measures_.imu_) 
-    {
-        ieskf_.Predict(*imu);
-        imu_states_.emplace_back(ieskf_.GetNominalState());
-    }
 }
 
 void LioIEKF::TryInitIMU() 

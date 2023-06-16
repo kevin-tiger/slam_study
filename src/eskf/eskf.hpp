@@ -4,6 +4,7 @@
 #include "sensor/imu.h"
 #include "sensor/odom.h"
 #include "common/nav_state.h"
+#include "common/math_utils.h"
 
 /**
  * 书本第3章介绍的误差卡尔曼滤波器
@@ -189,7 +190,8 @@ class ESKF {
     }
 
     /// 对P阵进行投影，参考式(3.63)
-    void ProjectCov() {
+    void ProjectCov() 
+    {
         Mat18T J = Mat18T::Identity();
         J.template block<3, 3>(6, 6) = Mat3T::Identity() - 0.5 * SO3::hat(dx_.template block<3, 1>(6, 0));
         cov_ = J * cov_ * J.transpose();
@@ -265,7 +267,7 @@ bool ESKF<S>::Predict(const IMU& imu)
     F.template block<3, 3>(6, 9) = -Mat3T::Identity() * dt;                        // theta 对 bg
 
     // mean and cov prediction
-    dx_ = F * dx_;  // 这行其实没必要算，dx_在重置之后应该为零，因此这步可以跳过，但F需要参与Cov部分计算，所以保留
+    // dx_ = F * dx_;  // 这行其实没必要算，dx_在重置之后应该为零，因此这步可以跳过
     // cout << fixed << setprecision(6) << "cov_ = \n" << cov_ << endl;
     cov_ = F * cov_.eval() * F.transpose() + Q_;
     current_time_ = imu.timestamp_;

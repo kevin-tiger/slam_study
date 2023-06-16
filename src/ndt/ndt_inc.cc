@@ -283,5 +283,5 @@ void IncNdt3d::ComputeResidualAndJacobians(const Sophus::SE3d& input_pose, Matri
         HTVH += jacobians[idx].transpose() * infos[idx] * jacobians[idx] * info_ratio;
         HTVr += -jacobians[idx].transpose() * infos[idx] * errors[idx] * info_ratio;
     }
-    cout << "effective: " << effective_num << endl;
+    // cout << "effective: " << effective_num << endl;
 }
