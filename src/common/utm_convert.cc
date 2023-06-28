@@ -56,3 +56,15 @@ bool ConvertGps2UTM(GNSS& gps_msg, const Vector2d& antenna_pos, const double& an
 
     return true;
 }
+
+bool ConvertGps2UTMOnlyTrans(GNSS& gps_msg) 
+{
+    /// 经纬高转换为UTM
+    UTMCoordinate utm_rtk;
+    LatLon2UTM(gps_msg.lat_lon_alt_.head<2>(), utm_rtk);
+    gps_msg.utm_valid_ = true;
+    gps_msg.utm_.xy_ = utm_rtk.xy_;
+    gps_msg.utm_.z_ = gps_msg.lat_lon_alt_[2];
+    gps_msg.utm_pose_ = Sophus::SE3d(Sophus::SO3d(), Vector3d(gps_msg.utm_.xy_[0], gps_msg.utm_.xy_[1], gps_msg.utm_.z_));
+    return true;
+}

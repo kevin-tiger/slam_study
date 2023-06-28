@@ -45,6 +45,8 @@ using namespace std;
 using namespace cv;
 using namespace Eigen;
 
+using IdType = unsigned long;
+
 // 定义系统中用到的点和点云类型
 using PointType = pcl::PointXYZI;
 using PointCloudType = pcl::PointCloud<PointType>;

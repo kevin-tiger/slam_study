@@ -7,6 +7,8 @@
 #include <rosbag/view.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <sensor_msgs/Imu.h>
+#include <sensor_msgs/NavSatFix.h>
+#include "common/utm_convert.h"
 
 class TxtIO 
 {
@@ -46,6 +48,7 @@ public:
     using MessageProcessFunction = std::function<bool(const rosbag::MessageInstance &m)>;
     using PointCloud2Handle = std::function<bool(sensor_msgs::PointCloud2::Ptr)>;
     using ImuHandle = std::function<bool(IMUPtr)>;
+    using GNSSHandle = std::function<bool(GNSSPtr)>;
     RosbagIO &AddHandle(const std::string &topic_name, MessageProcessFunction func) 
     {
         process_func_.emplace(topic_name, func);
@@ -53,7 +56,8 @@ public:
     }
     RosbagIO &AddAutoPointCloudHandle(PointCloud2Handle f)
     {
-        return AddHandle("/velodyne_points_0", [f](const rosbag::MessageInstance &m) -> bool 
+        // return AddHandle("/velodyne_points_0", [f](const rosbag::MessageInstance &m) -> bool // ulhk
+        return AddHandle("points_raw", [f](const rosbag::MessageInstance &m) -> bool // nclt
         {
             auto msg = m.instantiate<sensor_msgs::PointCloud2>();
             if (msg == nullptr) {
@@ -64,7 +68,8 @@ public:
     }
     RosbagIO &AddImuHandle(ImuHandle f)
     {
-        return AddHandle("/imu/data", [&f, this](const rosbag::MessageInstance &m) -> bool 
+        // return AddHandle("/imu/data", [&f, this](const rosbag::MessageInstance &m) -> bool // ulhk
+        return AddHandle("imu_raw", [&f, this](const rosbag::MessageInstance &m) -> bool // nclt
         {
             auto msg = m.template instantiate<sensor_msgs::Imu>();
             if (msg == nullptr) {
@@ -76,6 +81,25 @@ public:
                 Vector3d(msg->angular_velocity.x, msg->angular_velocity.y, msg->angular_velocity.z),
                 Vector3d(msg->linear_acceleration.x, msg->linear_acceleration.y, msg->linear_acceleration.z));
             return f(imu);
+        });
+    }
+    RosbagIO &AddAutoRTKHandle(GNSSHandle f)
+    {
+        return AddHandle("gps_rtk_fix", [f, this](const rosbag::MessageInstance &m) -> bool 
+        {
+            auto msg = m.instantiate<sensor_msgs::NavSatFix>();
+            if (msg == nullptr) {
+                return false;
+            }
+
+            GNSSPtr gnss(new GNSS(msg));
+            ConvertGps2UTMOnlyTrans(*gnss);
+            if (std::isnan(gnss->lat_lon_alt_[2])) {
+                // 貌似有Nan
+                return false;
+            }
+
+            return f(gnss);
         });
     }
 private:

@@ -1,5 +1,6 @@
 #pragma once
 #include "common/basetype.h"
+#include <sensor_msgs/NavSatFix.h>
 
 /// GNSS状态位信息
 /// 通常由GNSS厂商提供，这里使用千寻提供的状态位
@@ -35,7 +36,19 @@ struct GNSS
     {
         status_ = GpsStatusType(status);
     }
-
+    /// 从ros的NavSatFix进行转换
+    /// NOTE 这个只有位置信息而没有朝向信息，UTM坐标请从ch3的代码进行转换
+    GNSS(sensor_msgs::NavSatFix::Ptr msg) {
+        unix_time_ = msg->header.stamp.toSec();
+        // 状态位
+        if (int(msg->status.status) >= int(sensor_msgs::NavSatStatus::STATUS_FIX)) {
+            status_ = GpsStatusType::GNSS_FIXED_SOLUTION;
+        } else {
+            status_ = GpsStatusType::GNSS_OTHER;
+        }
+        // 经纬度
+        lat_lon_alt_ << msg->latitude, msg->longitude, msg->altitude;
+    }
     double unix_time_ = 0;                                  // unix系统时间
     GpsStatusType status_ = GpsStatusType::GNSS_NOT_EXIST;  // GNSS 状态位
     Vector3d lat_lon_alt_ = Vector3d::Zero();                     // 经度、纬度、高度，前二者单位为度
@@ -47,3 +60,4 @@ struct GNSS
 
     Sophus::SE3d utm_pose_;  // 用于后处理的6DoF Pose
 };
+using GNSSPtr = std::shared_ptr<GNSS>;

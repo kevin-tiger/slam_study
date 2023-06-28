@@ -29,6 +29,10 @@ public:
     void IMUCallBack(IMUPtr msg_in);
     /// 结束程序，退出UI
     void Finish();
+    /// 获取当前姿态
+    NavStated GetCurrentState() const { return ieskf_.GetNominalState(); }
+    /// 获取当前扫描
+    CloudPtr GetCurrentScan() const { return current_scan_; }
 private:
     bool LoadFromYAML(const std::string& yaml_file);
     /// 尝试让IMU初始化

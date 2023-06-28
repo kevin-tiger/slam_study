@@ -71,6 +71,8 @@ src/g2o_opti/g2o_types.cc
 src/imu_preinteg/gins_pre_integ.cc
 src/imu_preinteg/imu_preintegration.cc
 src/imu_preinteg/lio_preinteg.cc
+src/front_end/frontend.cc
+src/front_end/keyframe.cc
 )
 target_link_libraries(${PROJECT_NAME}
 ${OpenCV_LIBS}
@@ -84,8 +86,8 @@ ${g2o_libs}
 # add_executable(run_eskf_imu_gps_wheel app/run_eskf_imu_gps_wheel.cc)
 # target_link_libraries(run_eskf_imu_gps_wheel ${PROJECT_NAME})
 
-add_executable(run_g2o_imu_gps_wheel app/run_g2o_imu_gps_wheel.cc)
-target_link_libraries(run_g2o_imu_gps_wheel ${PROJECT_NAME})
+# add_executable(run_g2o_imu_gps_wheel app/run_g2o_imu_gps_wheel.cc)
+# target_link_libraries(run_g2o_imu_gps_wheel ${PROJECT_NAME})
 
 # add_executable(run_inc_ndt_lidar app/run_inc_ndt_lidar.cc)
 # target_link_libraries(run_inc_ndt_lidar ${PROJECT_NAME})
@@ -96,8 +98,14 @@ target_link_libraries(run_g2o_imu_gps_wheel ${PROJECT_NAME})
 # add_executable(run_ieskf_imu_lidar app/run_ieskf_imu_lidar.cc)
 # target_link_libraries(run_ieskf_imu_lidar ${PROJECT_NAME})
 
-add_executable(run_g2o_imu_lidar app/run_g2o_imu_lidar.cc)
-target_link_libraries(run_g2o_imu_lidar ${PROJECT_NAME})
+# add_executable(run_g2o_imu_lidar app/run_g2o_imu_lidar.cc)
+# target_link_libraries(run_g2o_imu_lidar ${PROJECT_NAME})
+
+add_executable(run_mapping app/run_mapping.cc)
+target_link_libraries(run_mapping ${PROJECT_NAME})
+
+# add_executable(run_localization app/run_localization.cc)
+# target_link_libraries(run_localization ${PROJECT_NAME})
 
 
 
