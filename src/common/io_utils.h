@@ -102,6 +102,8 @@ public:
             return f(gnss);
         });
     }
+    /// 清除现有的处理函数
+    void CleanProcessFunc() { process_func_.clear(); }
 private:
     std::string bag_file_;
     std::map<std::string, MessageProcessFunction> process_func_;

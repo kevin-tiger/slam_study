@@ -73,6 +73,8 @@ src/imu_preinteg/imu_preintegration.cc
 src/imu_preinteg/lio_preinteg.cc
 src/front_end/frontend.cc
 src/front_end/keyframe.cc
+src/back_end/optimization.cc
+src/back_end/loopclosure.cc
 )
 target_link_libraries(${PROJECT_NAME}
 ${OpenCV_LIBS}
@@ -106,6 +108,12 @@ target_link_libraries(run_mapping ${PROJECT_NAME})
 
 # add_executable(run_localization app/run_localization.cc)
 # target_link_libraries(run_localization ${PROJECT_NAME})
+
+add_executable(run_dump_map app/run_dump_map.cc)
+target_link_libraries(run_dump_map ${PROJECT_NAME})
+
+add_executable(run_spilt_map app/run_spilt_map.cc)
+target_link_libraries(run_spilt_map ${PROJECT_NAME})
 
 
 

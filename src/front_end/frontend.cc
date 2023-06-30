@@ -16,7 +16,7 @@ bool Frontend::Init()
     system("rm -rf ./data/ch9/*.pcd");
     system("rm -rf ./data/ch9/keyframes.txt");
     LioIEKF::Options options;
-    // options.with_ui_ = false;  // 跑建图不需要打开前端UI
+    options.with_ui_ = false;  // 跑建图不需要打开前端UI
     lio_ = std::make_shared<LioIEKF>(options);
     lio_->Init(lio_yaml_);
     return true;
@@ -37,7 +37,6 @@ void Frontend::Run()
     // 再运行LIO
     rosbag_io.AddAutoPointCloudHandle([&](sensor_msgs::PointCloud2::Ptr cloud) -> bool 
     {
-            cout << "PCLCallBack" << endl;
             lio_->PCLCallBack(cloud);
             ExtractKeyFrame(lio_->GetCurrentState());
             return true;
@@ -47,6 +46,9 @@ void Frontend::Run()
         return true;
     });
     rosbag_io.Go();
+
+    // 保存运行结果
+    SaveKeyframes();
 }
 
 void Frontend::ExtractKeyFrame(const NavStated& state)

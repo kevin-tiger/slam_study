@@ -32,6 +32,7 @@
 #include <pcl_ros/point_cloud.h>
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/common/transforms.h>
+#include <pcl/registration/ndt.h>
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/eigen.hpp>
 #include "thirdparty/sophus/se2.hpp"
