@@ -118,11 +118,11 @@ void Frontend::RemoveMapOrigin()
             map_origin_ = p.second->utm_pose_.translation();
             origin_set = true;
             cout << "map origin is set to " << map_origin_.transpose() << endl;
-            // auto yaml = YAML::LoadFile(config_yaml_);
-            // std::vector<double> ori{map_origin_[0], map_origin_[1], map_origin_[2]};
-            // yaml["origin"] = ori;
-            // std::ofstream fout(config_yaml_);
-            // fout << yaml;
+            auto yaml = YAML::LoadFile(config_yaml_);
+            std::vector<double> ori{map_origin_[0], map_origin_[1], map_origin_[2]};
+            yaml["origin"] = ori;
+            std::ofstream fout(config_yaml_);
+            fout << yaml;
             break;
         }
     }

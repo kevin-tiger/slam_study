@@ -8,17 +8,17 @@ string config_yaml = "./config/mapping.yaml";
 int main(int argc, char** argv)
 {
     cout << "app start" << endl;
-    // Frontend frontend(config_yaml);
-    // frontend.Init();
-    // frontend.Run();
+    Frontend frontend(config_yaml);
+    frontend.Init();
+    frontend.Run();
 
-    // Optimization opti(config_yaml);
-    // opti.Init(1);
-    // opti.Run();
+    Optimization opti(config_yaml);
+    opti.Init(1);
+    opti.Run();
 
-    // LoopClosure lc(config_yaml);
-    // lc.Init();
-    // lc.Run();
+    LoopClosure lc(config_yaml);
+    lc.Init();
+    lc.Run();
 
     Optimization opti2(config_yaml);
     opti2.Init(2);

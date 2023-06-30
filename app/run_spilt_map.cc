@@ -64,11 +64,7 @@ int main(int argc, char** argv)
         fout << dp.first[0] << " " << dp.first[1] << std::endl;
         dp.second->width = dp.second->size();
         VoxelGrid(dp.second, 0.1);
-
-        // sad::SaveCloudToFile(
-        //     "./data/ch9/map_data/" + std::to_string(dp.first[0]) + "_" + std::to_string(dp.first[1]) + ".pcd",
-        //     *dp.second);
-        pcl::io::savePCDFileASCII("./data/ch9/map_data/" + std::to_string(dp.first[0]) + "_" + std::to_string(dp.first[1]) + ".pcd" + "/map.pcd", *dp.second);
+        pcl::io::savePCDFileASCII("./data/ch9/map_data/" + std::to_string(dp.first[0]) + "_" + std::to_string(dp.first[1]) + ".pcd", *dp.second);
     }
     fout.close();
     cout << "app end" << endl;

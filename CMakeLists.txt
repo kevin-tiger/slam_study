@@ -75,6 +75,7 @@ src/front_end/frontend.cc
 src/front_end/keyframe.cc
 src/back_end/optimization.cc
 src/back_end/loopclosure.cc
+src/fusion/fusion.cc
 )
 target_link_libraries(${PROJECT_NAME}
 ${OpenCV_LIBS}
