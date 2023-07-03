@@ -14,7 +14,7 @@ int main(int argc, char** argv)
     IncrementalNDTLO::Options options;
     options.ndt3d_options_.nearby_type_ = IncNdt3d::NearbyType::NEARBY6; 
     IncrementalNDTLO ndt_lo(options);
-    RosbagIO rosbag_io(bag_path);
+    RosbagIO rosbag_io(bag_path, DatasetType::ULHK);
     cout << "VoxelCloud, voxel_size = 0.1m" << endl;
     rosbag_io.AddAutoPointCloudHandle([&ndt_lo, &ui_](sensor_msgs::PointCloud2::Ptr msg) -> bool 
     {

@@ -11,7 +11,7 @@ int main(int argc, char** argv)
     cout << "app start" << endl;
     LooselyLIO lio;
     lio.Init(config_file);
-    RosbagIO rosbag_io(bag_path);
+    RosbagIO rosbag_io(bag_path, DatasetType::ULHK);
     rosbag_io.AddAutoPointCloudHandle([&](sensor_msgs::PointCloud2::Ptr cloud) -> bool 
     {
         // cout << fixed << setprecision(3) << "cloud_" << cloud->header.stamp.toSec() << endl;

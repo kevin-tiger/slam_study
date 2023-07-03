@@ -24,7 +24,7 @@ bool Frontend::Init()
 
 void Frontend::Run() 
 {
-    RosbagIO rosbag_io(bag_path_);
+    RosbagIO rosbag_io(bag_path_, DatasetType::NCLT);
     // 先提取RTK pose，注意NCLT只有平移部分
     rosbag_io.AddAutoRTKHandle([this](GNSSPtr gnss) 
     {

@@ -52,9 +52,10 @@ void TxtIO::Go()
     }
 }
 
-RosbagIO::RosbagIO(const std::string &file_path)
+RosbagIO::RosbagIO(const std::string &file_path, DatasetType dataset_type)
 :
-bag_file_(file_path) 
+bag_file_(file_path),
+dataset_type_(dataset_type)
 {
 
 }

@@ -10,6 +10,17 @@
 #include <sensor_msgs/NavSatFix.h>
 #include "common/utm_convert.h"
 
+/// 枚举本书用到的一些数据集
+enum class DatasetType {
+    UNKNOWN = -1,
+    NCLT = 0,   // NCLT: http://robots.engin.umich.edu/nclt/
+    KITTI = 1,  // Kitti:
+    ULHK = 3,   // https://github.com/weisongwen/UrbanLoco
+    UTBM = 4,   // https://epan-utbm.github.io/utbm_robocar_dataset/
+    AVIA = 5,   // https://epan-utbm.github.io/utbm_robocar_dataset/
+    WXB_3D,     // 3d wxb
+};
+
 class TxtIO 
 {
 public:
@@ -43,7 +54,7 @@ private:
 class RosbagIO 
 {
 public:
-    RosbagIO(const std::string &file_path);
+    RosbagIO(const std::string &file_path, DatasetType dataset_type);
     void Go();
     using MessageProcessFunction = std::function<bool(const rosbag::MessageInstance &m)>;
     using PointCloud2Handle = std::function<bool(sensor_msgs::PointCloud2::Ptr)>;
@@ -56,8 +67,16 @@ public:
     }
     RosbagIO &AddAutoPointCloudHandle(PointCloud2Handle f)
     {
-        // return AddHandle("/velodyne_points_0", [f](const rosbag::MessageInstance &m) -> bool // ulhk
-        return AddHandle("points_raw", [f](const rosbag::MessageInstance &m) -> bool // nclt
+        string cloud_topic;
+        if(dataset_type_ == DatasetType::ULHK)
+        {
+            cloud_topic = "/velodyne_points_0";
+        }
+        else if(dataset_type_ == DatasetType::NCLT)
+        {
+            cloud_topic = "points_raw";
+        }
+        return AddHandle(cloud_topic, [f](const rosbag::MessageInstance &m) -> bool
         {
             auto msg = m.instantiate<sensor_msgs::PointCloud2>();
             if (msg == nullptr) {
@@ -68,8 +87,16 @@ public:
     }
     RosbagIO &AddImuHandle(ImuHandle f)
     {
-        // return AddHandle("/imu/data", [&f, this](const rosbag::MessageInstance &m) -> bool // ulhk
-        return AddHandle("imu_raw", [&f, this](const rosbag::MessageInstance &m) -> bool // nclt
+        string imu_topic;
+        if(dataset_type_ == DatasetType::ULHK)
+        {
+            imu_topic = "/imu/data";
+        }
+        else if(dataset_type_ == DatasetType::NCLT)
+        {
+            imu_topic = "imu_raw";
+        }
+        return AddHandle(imu_topic, [&f, this](const rosbag::MessageInstance &m) -> bool
         {
             auto msg = m.template instantiate<sensor_msgs::Imu>();
             if (msg == nullptr) {
@@ -107,4 +134,5 @@ public:
 private:
     std::string bag_file_;
     std::map<std::string, MessageProcessFunction> process_func_;
+    DatasetType dataset_type_; 
 };
