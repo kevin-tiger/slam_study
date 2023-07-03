@@ -9,22 +9,30 @@ function_02 : lidar and imu odometry by using loosely coupled eskf method.
 ./bin/run_eskf_imu_lidar  
 ![](./doc/eskf_imu_lidar.png)
 
-function_03 : lidar and imu odometry by using loosely coupled eskf method.
+function_03 : imu, gps and wheel_speed odometry by using loosely coupled eskf method.
+./bin/run_eskf_imu_gps_wheel
+![](./doc/eskf_imu_gps_wheel.png)
+
+function_04 : imu, gps and wheel_speed odometry by using loosely coupled g2o method.   
+./bin/run_g2o_imu_gps_wheel   
+![](./doc/g2o_imu_gps_wheel.png)
+
+function_05 : lidar and imu odometry by using loosely coupled eskf method.
 
 
-function_02 : lidar and imu odometry by using loosely coupled eskf method.
+function_06 : lidar and imu odometry by using loosely coupled eskf method.
 
 ./bin/run_eskf_imu_lidar
-![](./doc/lio_demo.gif)
+<!-- ![](./doc/lio_demo.gif) -->
 
 
 
 # dataset
-https://pan.baidu.com/s/1ky_TDLMvdqJjwHuuuWquFA?pwd=1234  
-note: split compress command
-tar -czv test3.bag | split -b 1000m - test3.tar.gz
-cat test3* > test3.tar.gz
-tar -xvf test3.tar.gz 
+https://pan.baidu.com/s/1ky_TDLMvdqJjwHuuuWquFA?pwd=1234    
+note: split compress command   
+tar -czv test3.bag | split -b 1000m - test3.tar.gz   
+cat test3* > test3.tar.gz    
+tar -xvf test3.tar.gz    
 
 # docker environment
 step_1: installl docker by command -- sudo apt  install docker.io  
