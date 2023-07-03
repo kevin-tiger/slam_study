@@ -17,15 +17,19 @@ function_04 : imu, gps and wheel_speed odometry by using loosely coupled g2o met
 ./bin/run_g2o_imu_gps_wheel   
 ![](./doc/g2o_imu_gps_wheel.png)
 
-function_05 : lidar and imu odometry by using loosely coupled eskf method.
+function_05 : lidar and imu odometry by using tightly coupled ieskf method.   
+./bin/run_ieskf_imu_lidar  
+![](./doc/ieskf_imu_lidar.png)
 
+<!-- function_06 : lidar and imu odometry by using tightly coupled g2o method.
+./run_g2o_imu_lidar -->
+<!-- ![](./doc/g2o_imu_lidar.png) -->
 
-function_06 : lidar and imu odometry by using loosely coupled eskf method.
+function_06 : offline build map   
+./bin/run_mapping  
 
-./bin/run_eskf_imu_lidar
-<!-- ![](./doc/lio_demo.gif) -->
-
-
+function_07 : online localization based offline map   
+./bin/run_localization  
 
 # dataset
 https://pan.baidu.com/s/1ky_TDLMvdqJjwHuuuWquFA?pwd=1234    
