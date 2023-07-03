@@ -122,7 +122,7 @@ class ESKF {
     SE3 GetNominalSE3() const { return SE3(R_, p_); }
 
     /// 设置状态X
-    void SetX(const NavStated& x, const Vec3d& grav) {
+    void SetX(const NavStated& x, const Vector3d& grav) {
         current_time_ = x.timestamp_;
         R_ = x.R_;
         p_ = x.p_;
@@ -136,7 +136,7 @@ class ESKF {
     void SetCov(const Mat18T& cov) { cov_ = cov; }
 
     /// 获取重力
-    Vec3d GetGravity() const { return g_; }
+    Vector3d GetGravity() const { return g_; }
 
    private:
     void BuildNoise(const Options& options) 

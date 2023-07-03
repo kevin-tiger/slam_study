@@ -10,6 +10,8 @@
 #include "eskf/eskf.hpp"
 #include "common/nav_state.h"
 #include "viewer/pangolin_window.h"
+#include "common/math_utils.h"
+#include "common/point_cloud_utils.h"
 
 /**
  * 第10章显示的高精度融合定位，融合IMU、RTK、激光点云定位功能

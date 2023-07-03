@@ -11,13 +11,24 @@ int main(int argc, char** argv)
     Fusion fusion(config_yaml);
     fusion.Init();
 
+    auto yaml = YAML::LoadFile(config_yaml);
+    auto bag_path_ = yaml["bag_path"].as<std::string>();
     RosbagIO rosbag_io(bag_path_);
-    rosbag_io.AddAutoRTKHandle([this](GNSSPtr gnss) 
+    rosbag_io.AddAutoRTKHandle([&fusion](GNSSPtr gnss) 
     {
-        return true;
+            fusion.ProcessRTK(gnss);
+            return true;
     });
-
-
+    rosbag_io.AddAutoPointCloudHandle([&](sensor_msgs::PointCloud2::Ptr cloud) -> bool 
+    {
+            fusion.ProcessPointCloud(cloud);
+            return true;
+    });
+    rosbag_io.AddImuHandle([&](IMUPtr imu) 
+    {
+            fusion.ProcessIMU(imu);
+            return true;
+    });
     rosbag_io.Go();
 
     cout << "app end" << endl;
