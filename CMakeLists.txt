@@ -104,8 +104,8 @@ target_link_libraries(run_ieskf_imu_lidar ${PROJECT_NAME})
 add_executable(run_g2o_imu_lidar app/run_g2o_imu_lidar.cc)
 target_link_libraries(run_g2o_imu_lidar ${PROJECT_NAME})
 
-# add_executable(run_mapping app/run_mapping.cc)
-# target_link_libraries(run_mapping ${PROJECT_NAME})
+add_executable(run_mapping app/run_mapping.cc)
+target_link_libraries(run_mapping ${PROJECT_NAME})
 
 # add_executable(run_localization app/run_localization.cc)
 # target_link_libraries(run_localization ${PROJECT_NAME})

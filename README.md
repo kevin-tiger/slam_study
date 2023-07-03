@@ -25,10 +25,18 @@ function_05 : lidar and imu odometry by using tightly coupled ieskf method.
 ./run_g2o_imu_lidar -->
 <!-- ![](./doc/g2o_imu_lidar.png) -->
 
-function_06 : offline build map   
+function_06 : offline build map with loopclosing by using imu, lidar and RTK sensor and using g2o method.   
+完整的点云建图可以看成是一个 RTK、IMU、轮速、激光的综合优化问题.   
+与在线 SLAM 系统不一样,地图构建系统完全可以工作在离线模式下。离线系统的一大好处
+是有很强的确定性。每一个算法步骤应该怎样做,产生怎样的输出,都可以事先规划和确定下来。
+模块与模块之间也没有线程、资源上的调度问题,而在线系统往往要考虑线程间的等待关系,例
+如后端的回环检测在计算完成之前是否要插入新的子地图、是否允许导出回环检测未闭合的地图,
+等等。所以,按照离线系统来设计建图框架,会比实时 SLAM 系统更加容易,也可以实现更好的
+自动化能力。  
+
 ./bin/run_mapping  
 
-function_07 : online localization based offline map   
+function_07 : online localization based offline lidar map  and using eskf fusiong imu.  
 ./bin/run_localization  
 
 # dataset
@@ -53,6 +61,10 @@ docker rmi 8ae5b6462b6d
 save container to image :   
 docker commit <container id> <image name>:<tag> -- docker commit ff3e1af39fd3 lidar_slam:V1.0  
 docker save -o <filename>.tar <image name>:<tag> -- docker save -o lidar_slam.tar lidar_slam:V1.0  
+
+# make gif
+use obs to record mp4 video  
+ffmpeg -i small.mp4 small.gif   
 
 # hardware
 ThinkPad T14 Core i7 8 core, 32G memory

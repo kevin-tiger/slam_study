@@ -33,6 +33,7 @@ void Frontend::Run()
         return true;
     });
     rosbag_io.Go();
+    rosbag_io.CleanProcessFunc();
     RemoveMapOrigin();
     // 再运行LIO
     rosbag_io.AddAutoPointCloudHandle([&](sensor_msgs::PointCloud2::Ptr cloud) -> bool 
@@ -76,7 +77,7 @@ void Frontend::ExtractKeyFrame(const NavStated& state)
             FindGPSPose(kf);
             keyframes_.emplace(kf->id_, kf);
             kf->SaveAndUnloadScan("./data/ch9/");
-            cout << "生成关键帧" << kf->id_ << endl;
+            // cout << "生成关键帧" << kf->id_ << endl;
             last_kf_ = kf;
         }
     }
@@ -124,6 +125,14 @@ void Frontend::RemoveMapOrigin()
             std::ofstream fout(config_yaml_);
             fout << yaml;
             break;
+        }
+    }
+    if (origin_set) 
+    {
+        cout << "removing origin from rtk" << endl;
+        for (auto& p : gnss_) 
+        {
+            p.second->utm_pose_.translation() -= map_origin_;
         }
     }
 }
