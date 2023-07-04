@@ -48,7 +48,7 @@ function_07 : online localization based offline lidar map.
 https://pan.baidu.com/s/1ky_TDLMvdqJjwHuuuWquFA?pwd=1234    
 note: split compress command   
 tar -czv test3.bag | split -b 1000m - test3.tar.gz   
-cat test3* > test3.tar.gz    
+cat test3.tar* > test3.tar.gz    
 tar -xvf test3.tar.gz    
 
 # docker environment
