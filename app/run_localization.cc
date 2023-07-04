@@ -13,7 +13,7 @@ int main(int argc, char** argv)
 
     auto yaml = YAML::LoadFile(config_yaml);
     auto bag_path_ = yaml["bag_path"].as<std::string>();
-    RosbagIO rosbag_io(bag_path_);
+    RosbagIO rosbag_io(bag_path_, DatasetType::NCLT);
     rosbag_io.AddAutoRTKHandle([&fusion](GNSSPtr gnss) 
     {
             fusion.ProcessRTK(gnss);

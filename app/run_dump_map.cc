@@ -2,8 +2,8 @@
 #include "front_end/keyframe.h"
 #include "common/point_cloud_utils.h"
 
-double voxel_size = 0.1;
-string pose_source = "lidar";
+double voxel_size = 1;  // 0.1
+string pose_source = "opti2";
 string dump_to = "./data/ch9/";
 
 int main(int argc, char** argv)

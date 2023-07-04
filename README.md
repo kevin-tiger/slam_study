@@ -35,6 +35,8 @@ function_06 : offline build map with loopclosing by using imu, lidar and RTK sen
 自动化能力。  
 
 ./bin/run_mapping  
+./bin/run_dump_map   
+![](./doc/map.png)
 
 function_07 : online localization based offline lidar map  and using eskf fusiong imu.  
 ./bin/run_localization  
@@ -48,19 +50,19 @@ tar -xvf test3.tar.gz
 
 # docker environment
 step_1: installl docker by command -- sudo apt  install docker.io  
-step_2: download lidar_slam.tar from path https://pan.baidu.com/s/1ky_TDLMvdqJjwHuuuWquFA?pwd=1234
+step_2: download lidar_slam.tar from path https://pan.baidu.com/s/1ky_TDLMvdqJjwHuuuWquFA?pwd=1234     
 step_3: import docker image by command -- docker load -i lidar_slam.tar  
 step_4: docker run -it -v /home/hongfeng/workspace_18_04/:/workspace_18_04/ -v /tmp/.x11-unix:/tmp/.x11-unix -e DISPLAY=unix$DISPLAY -e GDK_SCALE -e GDK_DPI_SCALE --net=host --name lidar_slam lidar_slam:V1.0 /bin/bash  
-others useful docker command:  
-docker exec -it lidar_slam bash
-docker ps -a  
-docker start lidar_slam   
-docker stop lidar_slam  
-docker rm lidar_slam  
-docker rmi 8ae5b6462b6d  
-save container to image :   
-docker commit <container id> <image name>:<tag> -- docker commit ff3e1af39fd3 lidar_slam:V1.0  
-docker save -o <filename>.tar <image name>:<tag> -- docker save -o lidar_slam.tar lidar_slam:V1.0  
+others useful docker command:    
+docker exec -it lidar_slam bash    
+docker ps -a    
+docker start lidar_slam     
+docker stop lidar_slam    
+docker rm lidar_slam    
+docker rmi 8ae5b6462b6d     
+save container to image :      
+docker commit <container id> <image name>:<tag> -- docker commit ff3e1af39fd3 lidar_slam:V1.0     
+docker save -o <filename>.tar <image name>:<tag> -- docker save -o lidar_slam.tar lidar_slam:V1.0     
 
 # make gif
 use obs to record mp4 video  
