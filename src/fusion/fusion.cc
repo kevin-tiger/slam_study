@@ -9,14 +9,17 @@ Fusion::Fusion(const std::string& config_yaml)
     ndt_.setResolution(1.0);
 }
 
-bool Fusion::Init() {
+bool Fusion::Init() 
+{
     // 地图原点
     auto yaml = YAML::LoadFile(config_yaml_);
     auto origin_data = yaml["origin"].as<std::vector<double>>();
     map_origin_ = Vector3d(origin_data[0], origin_data[1], origin_data[2]);
+    cout << fixed << setprecision(3) << "map_origin_ = " << map_origin_.transpose() << endl;
 
     // 地图目录
     data_path_ = yaml["map_data"].as<std::string>();
+    cout << "data_path_ = " << data_path_ << endl;
     LoadMapIndex();
 
     // lidar和IMU消息同步
@@ -29,7 +32,7 @@ bool Fusion::Init() {
     Vector3d lidar_T_wrt_IMU = math::VecFromArray(ext_t);
     Matrix3d lidar_R_wrt_IMU = math::MatFromArray(ext_r);
     TIL_ = Sophus::SE3d(lidar_R_wrt_IMU, lidar_T_wrt_IMU);
-
+    cout << fixed << setprecision(3) << "TIL_ = \n" << TIL_.matrix() << endl;
     // ui
     ui_ = std::make_shared<PangolinWindow>();
     ui_->Init();
@@ -48,16 +51,20 @@ void Fusion::ProcessMeasurements(const MeasureGroup& meas)
     // cout << "ProcessMeasurements" << endl;
     measures_ = meas;
 
-    if (imu_need_init_) {
+    if (imu_need_init_) 
+    {
         TryInitIMU();
         return;
     }
 
     /// 以下三步与LIO一致，只是align完成地图匹配工作
-    if (status_ == Status::WORKING) {
+    if (status_ == Status::WORKING) 
+    {
         Predict();
         Undistort();
-    } else {
+    } 
+    else 
+    {
         scan_undistort_ = measures_.lidar_;
     }
 
@@ -107,18 +114,24 @@ void Fusion::Align()
     CloudPtr scan_undistort_trans(new PointCloudType);
     pcl::transformPointCloud(*scan_undistort_, *scan_undistort_trans, TIL_.matrix());
     scan_undistort_ = scan_undistort_trans;
+    current_scan_ = scan_undistort_;
     current_scan_ = VoxelCloud(current_scan_, 0.5);
 
-    if (status_ == Status::WAITING_FOR_RTK) {
+    if (status_ == Status::WAITING_FOR_RTK) 
+    {
         // 若存在最近的RTK信号，则尝试初始化
-        if (last_gnss_ != nullptr) {
-            if (SearchRTK()) {
+        if (last_gnss_ != nullptr) 
+        {
+            if (SearchRTK()) 
+            {
                 status_ == Status::WORKING;
                 ui_->UpdateScan(current_scan_, eskf_.GetNominalSE3());
                 ui_->UpdateNavState(eskf_.GetNominalState());
             }
         }
-    } else {
+    } 
+    else 
+    {
         LidarLocalization();
         ui_->UpdateScan(current_scan_, eskf_.GetNominalSE3());
         ui_->UpdateNavState(eskf_.GetNominalState());
@@ -127,8 +140,10 @@ void Fusion::Align()
 
 bool Fusion::SearchRTK()
 {
-    if (init_has_failed_) {
-        if ((last_gnss_->utm_pose_.translation() - last_searched_pos_.translation()).norm() < 20.0) {
+    if (init_has_failed_) 
+    {
+        if ((last_gnss_->utm_pose_.translation() - last_searched_pos_.translation()).norm() < 20.0) 
+        {
             cout << "skip this position" << endl;
             return false;
         }
@@ -150,7 +165,10 @@ bool Fusion::SearchRTK()
     // std::for_each(std::execution::par_unseq, search_poses.begin(), search_poses.end(),
     //               [this](GridSearchResult& gr) { AlignForGrid(gr); });
     std::for_each(search_poses.begin(), search_poses.end(),
-                  [this](GridSearchResult& gr) { AlignForGrid(gr); });
+    [this](GridSearchResult& gr) 
+    { 
+        AlignForGrid(gr); 
+    });
 
     // 选择最优的匹配结果
     auto max_ele = std::max_element(search_poses.begin(), search_poses.end(),
@@ -235,6 +253,54 @@ void Fusion::LoadMap(const Sophus::SE3d& pose)
         key + Vector2i(0, 0), key + Vector2i(-1, 0), key + Vector2i(-1, -1), key + Vector2i(-1, 1), key + Vector2i(0, -1),
         key + Vector2i(0, 1), key + Vector2i(1, 0),  key + Vector2i(1, -1),  key + Vector2i(1, 1),
     };
+    // 加载必要区域
+    bool map_data_changed = false;
+    int cnt_new_loaded = 0, cnt_unload = 0;
+    for (auto& k : surrounding_index) 
+    {
+        if (map_data_index_.find(k) == map_data_index_.end()) 
+        {
+            // 该地图数据不存在
+            continue;
+        }
+        if (map_data_.find(k) == map_data_.end()) 
+        {
+            // 加载这个区块
+            CloudPtr cloud(new PointCloudType);
+            pcl::io::loadPCDFile(data_path_ + std::to_string(k[0]) + "_" + std::to_string(k[1]) + ".pcd", *cloud);
+            map_data_.emplace(k, cloud);
+            map_data_changed = true;
+            cnt_new_loaded++;
+        }
+    }
+    // 卸载不需要的区域，这个稍微加大一点，不需要频繁卸载
+    for (auto iter = map_data_.begin(); iter != map_data_.end();) 
+    {
+        if ((iter->first - key).cast<float>().norm() > 3.0) 
+        {
+            // 卸载本区块
+            iter = map_data_.erase(iter);
+            cnt_unload++;
+            map_data_changed = true;
+        } 
+        else 
+        {
+            iter++;
+        }
+    }
+    cout << "new loaded: " << cnt_new_loaded << ", unload: " << cnt_unload << endl;
+    if (map_data_changed) 
+    {
+        // rebuild ndt target map
+        ref_cloud_.reset(new PointCloudType);
+        for (auto& mp : map_data_) 
+        {
+            *ref_cloud_ += *mp.second;
+        }
+        cout << "rebuild global cloud, grids: " << map_data_.size() << endl;
+        ndt_.setInputTarget(ref_cloud_);
+    }
+    ui_->UpdatePointCloudGlobal(map_data_);
 }
 
 void Fusion::LoadMapIndex()
@@ -245,6 +311,7 @@ void Fusion::LoadMapIndex()
         fin >> x >> y;
         map_data_index_.emplace(Vector2i(x, y));
     }
+    cout << "map_data_index_.size() = " << map_data_index_.size() << endl;
     fin.close();
 }
 

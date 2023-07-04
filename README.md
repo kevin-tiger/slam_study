@@ -25,7 +25,7 @@ function_05 : lidar and imu odometry by using tightly coupled ieskf method.
 ./run_g2o_imu_lidar -->
 <!-- ![](./doc/g2o_imu_lidar.png) -->
 
-function_06 : offline build map with loopclosing by using imu, lidar and RTK sensor and using g2o method.   
+function_06 : offline build map with loop-closing by using imu, lidar and RTK sensor and using g2o method.   
 完整的点云建图可以看成是一个 RTK、IMU、轮速、激光的综合优化问题.   
 与在线 SLAM 系统不一样,地图构建系统完全可以工作在离线模式下。离线系统的一大好处
 是有很强的确定性。每一个算法步骤应该怎样做,产生怎样的输出,都可以事先规划和确定下来。
@@ -35,11 +35,14 @@ function_06 : offline build map with loopclosing by using imu, lidar and RTK sen
 自动化能力。  
 
 ./bin/run_mapping  
+./bin/run_spilt_map   
 ./bin/run_dump_map   
 ![](./doc/map.png)
 
-function_07 : online localization based offline lidar map  and using eskf fusiong imu.  
-./bin/run_localization  
+function_07 : online localization based offline lidar map.    
+把当前激光扫描数据与加载的离线地图进行匹配,从而获得车辆自身的位置,再与 IMU 等传感器进行滤波器融合得到一个基于卡尔曼滤波器的实时定位方案。    
+./bin/run_localization     
+![](./doc/localization.png)   
 
 # dataset
 https://pan.baidu.com/s/1ky_TDLMvdqJjwHuuuWquFA?pwd=1234    
